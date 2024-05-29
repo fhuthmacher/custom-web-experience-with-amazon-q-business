@@ -33,7 +33,7 @@ Parameters:
   IdcApplicationArn:
     Type: String
     Description: Identity Center customer application ARN.
-    Default: ""
+    Default: "arn:aws:sso::026459568683:application/ssoins-7223600c29125f80/apl-57c052caabd9bbb4"
     
 Resources:
   QManagedPolicy:
@@ -317,7 +317,7 @@ Resources:
             systemctl enable aws-appconfig-agent
             systemctl restart aws-appconfig-agent
             cd /opt
-            git clone https://github.com/aws-samples/custom-web-experience-with-amazon-q-business.git
+            git clone https://github.com/fhuthmacher/custom-web-experience-with-amazon-q-business.git
             cd custom-web-experience-with-amazon-q-business/
             pip3.11 install virtualenv
             python3.11 -m virtualenv venv
