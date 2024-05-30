@@ -43,11 +43,11 @@ def configure_oauth_component():
     """
     Configure the OAuth2 component for Cognito
     """
-    cognito_domain = OAUTH_CONFIG["CognitoDomain"]
-    authorize_url = f"https://{cognito_domain}/oauth2/authorize"
-    token_url = f"https://{cognito_domain}/oauth2/token"
-    refresh_token_url = f"https://{cognito_domain}/oauth2/token"
-    revoke_token_url = f"https://{cognito_domain}/oauth2/revoke"
+    domain = OAUTH_CONFIG["AuthDomain"]
+    authorize_url = f"https://{domain}/authorize"
+    token_url = f"https://{domain}/oauth2/token"
+    refresh_token_url = f"https://{domain}/oauth2/token"
+    revoke_token_url = f"https://{domain}/oauth2/revoke"
     client_id = OAUTH_CONFIG["ClientId"]
     return OAuth2Component(
         client_id, None, authorize_url, token_url, refresh_token_url, revoke_token_url

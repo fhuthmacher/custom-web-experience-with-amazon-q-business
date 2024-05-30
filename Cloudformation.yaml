@@ -26,6 +26,19 @@ Parameters:
     AllowedPattern: ^[a-z0-9]+$
     ConstraintDescription: May only include lowercase, alphanumeric characters
     Default: 'qcustomchat'
+  authClientId:
+    Type: String
+    Description: Auth0 Client App Id
+    Default: 'QVcIxU1OTznQFH5PiAfla5zweOTI4xSg'
+  authDomain:
+    Type: String
+    Description: Auth0 Domain
+    Default: 'dev-u7kq0c6k8tinjvk3.us.auth0.com'
+  authAudience:
+    Type: String
+    Description: Auth0 Client App Id
+    Default: 'AmazonQCustomPluginAPI'
+
   QApplicationId:
     Type: String
     Description: Q Application Id
@@ -33,7 +46,7 @@ Parameters:
   IdcApplicationArn:
     Type: String
     Description: Identity Center customer application ARN.
-    Default: "arn:aws:sso::026459568683:application/ssoins-7223600c29125f80/apl-57c052caabd9bbb4"
+    Default: ""
     
 Resources:
   QManagedPolicy:
@@ -146,9 +159,9 @@ Resources:
           "Region": "${AWS::Region}",
           "IdcApplicationArn": "${IdcApplicationArn}",
           "OAuthConfig": {
-            "ClientId": "${UserPoolClient}",
+            "ClientId": "${authClientId}",
             "ExternalDns": "${LowerCaseFqdn.Output}",
-            "CognitoDomain" : "${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com"
+            "AuthDomain" : "${authDomain}"
           }
         }
   AppConfigDeployment:
@@ -317,11 +330,12 @@ Resources:
             systemctl enable aws-appconfig-agent
             systemctl restart aws-appconfig-agent
             cd /opt
-            git clone https://github.com/fhuthmacher/custom-web-experience-with-amazon-q-business.git
+            git clone https://github.com/aws-samples/custom-web-experience-with-amazon-q-business.git
             cd custom-web-experience-with-amazon-q-business/
             pip3.11 install virtualenv
             python3.11 -m virtualenv venv
             venv/bin/pip install -r requirements.txt
+            export STREAMLIT_LOG_LEVEL=debug
             APPCONFIG_APP_NAME=${AppConfig} APPCONFIG_ENV_NAME=${AppConfigEnvironment} APPCONFIG_CONF_NAME=${AppConfigConfigProfile} nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt & 
 
     # Target Group, Listener and Application  Load Balancer
@@ -343,44 +357,44 @@ Resources:
       UnhealthyThresholdCount: 3
       VpcId: !Ref VpcId
 
-  UserPool:
-    Type: AWS::Cognito::UserPool
-    Metadata:
-      guard:
-        SuppressedRules:
-          - COGNITO_USER_POOL_MFA_CONFIGURATION_RULE # Not required for the demo
-    Properties:
-      UserPoolName: !Sub ${AuthName}-user-pool
-      AutoVerifiedAttributes:
-      - email
-      MfaConfiguration: "OFF"
-      Schema:
-      - Name: email
-        AttributeDataType: String
-        Mutable: false
-        Required: true
+  # UserPool:
+  #   Type: AWS::Cognito::UserPool
+  #   Metadata:
+  #     guard:
+  #       SuppressedRules:
+  #         - COGNITO_USER_POOL_MFA_CONFIGURATION_RULE # Not required for the demo
+  #   Properties:
+  #     UserPoolName: !Sub ${AuthName}-user-pool
+  #     AutoVerifiedAttributes:
+  #     - email
+  #     MfaConfiguration: "OFF"
+  #     Schema:
+  #     - Name: email
+  #       AttributeDataType: String
+  #       Mutable: false
+  #       Required: true
 
-  UserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      ClientName: !Sub ${AuthName}-client
-      GenerateSecret: false
-      UserPoolId: !Ref UserPool
-      AllowedOAuthFlowsUserPoolClient: True
-      AllowedOAuthFlows:
-      - code
-      AllowedOAuthScopes:
-      - openid
-      SupportedIdentityProviders:
-      - COGNITO
-      CallbackURLs:
-      - !Sub "https://${LowerCaseFqdn.Output}/component/streamlit_oauth.authorize_button/index.html"
+  # UserPoolClient:
+  #   Type: AWS::Cognito::UserPoolClient
+  #   Properties:
+  #     ClientName: !Sub ${AuthName}-client
+  #     GenerateSecret: false
+  #     UserPoolId: !Ref UserPool
+  #     AllowedOAuthFlowsUserPoolClient: True
+  #     AllowedOAuthFlows:
+  #     - code
+  #     AllowedOAuthScopes:
+  #     - openid
+  #     SupportedIdentityProviders:
+  #     - COGNITO
+  #     CallbackURLs:
+  #     - !Sub "https://${LowerCaseFqdn.Output}/component/streamlit_oauth.authorize_button/index.html"
 
-  UserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      UserPoolId: !Ref UserPool
-      Domain: !Sub ${AuthName}-dns-testname
+  # UserPoolDomain:
+  #   Type: AWS::Cognito::UserPoolDomain
+  #   Properties:
+  #     UserPoolId: !Ref UserPool
+  #     Domain: !Sub ${AuthName}-dns-testname
 
   ALBListener2:
     Type: AWS::ElasticLoadBalancingV2::Listener
