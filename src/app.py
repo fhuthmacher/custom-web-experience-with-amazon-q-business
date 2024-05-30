@@ -42,7 +42,7 @@ else:
     token = st.session_state["token"]
     refresh_token = token["refresh_token"] # saving the long lived refresh_token
     user_email = jwt.decode(token["id_token"], options={"verify_signature": False})["email"]
-    if st.button("Refresh Cognito Token") :
+    if st.button("Refresh Auth Token") :
         # If refresh token button is clicked or the token is expired, refresh the token
         token = oauth2.refresh_token(token, force=True)
         # Put the refresh token in the session state as it is not returned by Cognito
