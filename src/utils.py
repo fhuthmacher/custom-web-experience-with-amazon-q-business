@@ -1,54 +1,50 @@
 import datetime
 import logging
 import os
-
 import boto3
 import jwt
 import urllib3
 from streamlit_oauth import OAuth2Component
-
 logger = logging.getLogger()
 
 # Read the configuration file
-APPCONFIG_APP_NAME = os.environ["APPCONFIG_APP_NAME"]
-APPCONFIG_ENV_NAME = os.environ["APPCONFIG_ENV_NAME"]
-APPCONFIG_CONF_NAME = os.environ["APPCONFIG_CONF_NAME"]
+from dotenv import load_dotenv, find_dotenv
+
+# loading environment variables that are stored in local file dev.env
+local_env_filename = 'dev.env'
+load_dotenv(find_dotenv(local_env_filename),override=True)
+
+os.environ['AUTH0_DOMAIN'] = os.getenv('AUTH0_DOMAIN')
+os.environ['AUTH_CLIENT_ID'] = os.getenv('AUTH_CLIENT_ID')
+os.environ['API_IDENTIFIER'] = os.getenv('API_IDENTIFIER')
+os.environ['REGION'] = os.getenv('REGION')
+os.environ['IDC_APPLICATION_ID'] = os.getenv('IDC_APPLICATION_ID')
+os.environ['IAM_ROLE'] = os.getenv('IAM_ROLE')
+os.environ['AMAZON_Q_APP_ID'] = os.getenv('AMAZON_Q_APP_ID')
+os.environ['CALLBACKURL'] = os.getenv('CALLBACKURL')
+
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+AUTH_CLIENT_ID = os.environ['AUTH_CLIENT_ID']
+API_IDENTIFIER = os.environ["API_IDENTIFIER"]
+REGION = os.environ['REGION']
+IDC_APPLICATION_ID = os.environ['IDC_APPLICATION_ID']
+IAM_ROLE = os.environ['IAM_ROLE']
+AMAZON_Q_APP_ID = os.environ['AMAZON_Q_APP_ID']
+CALLBACKURL = os.environ['CALLBACKURL']
+
 AWS_CREDENTIALS = {}
-AMAZON_Q_APP_ID = None
-IAM_ROLE = None
-REGION = None
-IDC_APPLICATION_ID = None
-OAUTH_CONFIG = {}
-
-
-def retrieve_config_from_agent():
-    """
-    Retrieve the configuration from the agent
-    """
-    global IAM_ROLE, REGION, IDC_APPLICATION_ID, AMAZON_Q_APP_ID, OAUTH_CONFIG
-    config = urllib3.request(
-        "GET",
-        f"http://localhost:2772/applications/{APPCONFIG_APP_NAME}/environments/{APPCONFIG_ENV_NAME}/configurations/{APPCONFIG_CONF_NAME}",
-    ).json()
-    print(f'Config: {config}')
-
-    IAM_ROLE = config["IamRoleArn"]
-    REGION = config["Region"]
-    IDC_APPLICATION_ID = config["IdcApplicationArn"]
-    AMAZON_Q_APP_ID = config["AmazonQAppId"]
-    OAUTH_CONFIG = config["OAuthConfig"]
 
 
 def configure_oauth_component():
     """
     Configure the OAuth2 component for Cognito
     """
-    domain = OAUTH_CONFIG["AuthDomain"]
+    domain = AUTH0_DOMAIN
     authorize_url = f"https://{domain}/authorize"
     token_url = f"https://{domain}/oauth2/token"
     refresh_token_url = f"https://{domain}/oauth2/token"
     revoke_token_url = f"https://{domain}/oauth2/revoke"
-    client_id = OAUTH_CONFIG["ClientId"]
+    client_id = AUTH_CLIENT_ID
     return OAuth2Component(
         client_id, None, authorize_url, token_url, refresh_token_url, revoke_token_url
     )
@@ -57,7 +53,6 @@ def refresh_iam_oidc_token(refresh_token):
     """
     Refresh the IAM OIDC token using the refresh token retrieved from Cognito
     """
-    print(f'Refresh the IAM OIDC token using the refresh token retrieved from Cognito with token: {refresh_token}')
     client = boto3.client("sso-oidc", region_name=REGION)
     response = client.create_token_with_iam(
         clientId=IDC_APPLICATION_ID,
@@ -71,13 +66,15 @@ def get_iam_oidc_token(id_token):
     """
     Get the IAM OIDC token using the ID token retrieved from Cognito
     """
-    print(f'Get the IAM OIDC token using the ID token retrieved from Cognito with token: {id_token}')
+    print (f'region: {REGION}')
     client = boto3.client("sso-oidc", region_name=REGION)
+    print (f'sso-oidc client: {client}')
     response = client.create_token_with_iam(
         clientId=IDC_APPLICATION_ID,
         grantType="urn:ietf:params:oauth:grant-type:jwt-bearer",
         assertion=id_token,
     )
+    print (f'create_token_with_iam response: {response}')
     return response
 
 
@@ -117,7 +114,6 @@ def get_qclient(idc_id_token: str):
         aws_session_token=AWS_CREDENTIALS["SessionToken"],
     )
     amazon_q = session.client("qbusiness", REGION)
-    print(f'amazon_q session client: {amazon_q}')
     return amazon_q
 
 
@@ -128,11 +124,9 @@ def get_queue_chain(
     """"
     This method is used to get the answer from the queue chain.
     """
-    print(f'get_queue_chain get_qclient with token: {token}')
     amazon_q = get_qclient(token)
-
+    print(f'amazon_q: {amazon_q}')
     if conversation_id != "":
-        print(f'conversation_id is empty, run chat_sync with qappid: {AMAZON_Q_APP_ID} and prompt: {prompt_input}')
         answer = amazon_q.chat_sync(
             applicationId=AMAZON_Q_APP_ID,
             userMessage=prompt_input,
@@ -140,7 +134,6 @@ def get_queue_chain(
             parentMessageId=parent_message_id,
         )
     else:
-        print(f'run chat_sync with qappid: {AMAZON_Q_APP_ID} and prompt: {prompt_input}')
         answer = amazon_q.chat_sync(
             applicationId=AMAZON_Q_APP_ID, userMessage=prompt_input
         )

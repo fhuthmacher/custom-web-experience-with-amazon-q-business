@@ -8,8 +8,30 @@ from streamlit_feedback import streamlit_feedback
 
 UTC=timezone.utc
 
-# Init configuration
-utils.retrieve_config_from_agent()
+# Read the configuration file
+from dotenv import load_dotenv, find_dotenv
+
+# loading environment variables that are stored in local file dev.env
+local_env_filename = 'dev.env'
+load_dotenv(find_dotenv(local_env_filename),override=True)
+
+os.environ['AUTH0_DOMAIN'] = os.getenv('AUTH0_DOMAIN')
+os.environ['AUTH_CLIENT_ID'] = os.getenv('AUTH_CLIENT_ID')
+os.environ['API_IDENTIFIER'] = os.getenv('API_IDENTIFIER')
+os.environ['REGION'] = os.getenv('REGION')
+os.environ['IDC_APPLICATION_ID'] = os.getenv('IDC_APPLICATION_ID')
+os.environ['IAM_ROLE'] = os.getenv('IAM_ROLE')
+os.environ['AMAZON_Q_APP_ID'] = os.getenv('AMAZON_Q_APP_ID')
+os.environ['CALLBACKURL'] = os.getenv('CALLBACKURL')
+
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+AUTH_CLIENT_ID = os.environ['AUTH_CLIENT_ID']
+API_IDENTIFIER = os.environ["API_IDENTIFIER"]
+REGION = os.environ['REGION']
+IDC_APPLICATION_ID = os.environ['IDC_APPLICATION_ID']
+IAM_ROLE = os.environ['IAM_ROLE']
+AMAZON_Q_APP_ID = os.environ['AMAZON_Q_APP_ID']
+CALLBACKURL = os.environ['CALLBACKURL']
 
 st.set_page_config(page_title="Amazon Q Business Custom UI") #HTML title
 st.title("Amazon Q Business Custom UI") #page title
@@ -28,7 +50,7 @@ def clear_chat_history():
 oauth2 = utils.configure_oauth_component()
 if "token" not in st.session_state:
     # If not, show authorize button
-    redirect_uri = f"https://{utils.OAUTH_CONFIG['ExternalDns']}/component/streamlit_oauth.authorize_button/index.html"
+    redirect_uri = f"https://{CALLBACKURL}/component/streamlit_oauth.authorize_button/index.html"
     result = oauth2.authorize_button("Login with oauth2",scope="openid", pkce="S256", redirect_uri=redirect_uri)
     if result and "token" in result:
         # If authorization successful, save token in session state
