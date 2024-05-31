@@ -5,6 +5,7 @@ import jwt.algorithms
 import streamlit as st  #all streamlit commands will be available through the "st" alias
 import utils
 from streamlit_feedback import streamlit_feedback
+import os
 
 UTC=timezone.utc
 
@@ -48,10 +49,12 @@ def clear_chat_history():
 
 
 oauth2 = utils.configure_oauth_component()
+print(f'oauth2: {oauth2}')
 if "token" not in st.session_state:
     # If not, show authorize button
     redirect_uri = f"https://{CALLBACKURL}/component/streamlit_oauth.authorize_button/index.html"
     result = oauth2.authorize_button("Login with oauth2",scope="openid", pkce="S256", redirect_uri=redirect_uri)
+    print(f'result: {result}')
     if result and "token" in result:
         # If authorization successful, save token in session state
         st.session_state.token = result.get("token")
@@ -62,8 +65,11 @@ if "token" not in st.session_state:
         st.rerun()
 else:
     token = st.session_state["token"]
+    print(f'token: {token}')
     refresh_token = token["refresh_token"] # saving the long lived refresh_token
+    print(f'refresh_token: {refresh_token}')
     user_email = jwt.decode(token["id_token"], options={"verify_signature": False})["email"]
+    print(f'user_email: {user_email}')
     if st.button("Refresh Auth Token") :
         # If refresh token button is clicked or the token is expired, refresh the token
         token = oauth2.refresh_token(token, force=True)
