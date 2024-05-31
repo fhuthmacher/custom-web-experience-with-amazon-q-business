@@ -33,7 +33,6 @@ IDC_APPLICATION_ID = os.environ['IDC_APPLICATION_ID']
 IAM_ROLE = os.environ['IAM_ROLE']
 AMAZON_Q_APP_ID = os.environ['AMAZON_Q_APP_ID']
 CALLBACKURL = os.environ['CALLBACKURL']
-
 st.set_page_config(page_title="Amazon Q Business Custom UI") #HTML title
 st.title("Amazon Q Business Custom UI") #page title
 
@@ -53,7 +52,8 @@ print(f'oauth2: {oauth2}')
 if "token" not in st.session_state:
     # If not, show authorize button
     redirect_uri = f"https://{CALLBACKURL}/component/streamlit_oauth.authorize_button/index.html"
-    result = oauth2.authorize_button("Login with oauth2",scope="openid", pkce="S256", redirect_uri=redirect_uri)
+    # result = oauth2.authorize_button("Login with oauth2",scope="openid", pkce="S256", redirect_uri=redirect_uri)
+    result = oauth2.authorize_button("Login with auth0", redirect_uri, "openid")
     print(f'result: {result}')
     if result and "token" in result:
         # If authorization successful, save token in session state

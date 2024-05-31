@@ -25,6 +25,7 @@ os.environ['CALLBACKURL'] = os.getenv('CALLBACKURL')
 
 AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
 AUTH_CLIENT_ID = os.environ['AUTH_CLIENT_ID']
+CLIENT_SECRET = os.environ.get('AUTH_CLIENT_SECRET')
 API_IDENTIFIER = os.environ["API_IDENTIFIER"]
 REGION = os.environ['REGION']
 IDC_APPLICATION_ID = os.environ['IDC_APPLICATION_ID']
@@ -33,7 +34,6 @@ AMAZON_Q_APP_ID = os.environ['AMAZON_Q_APP_ID']
 CALLBACKURL = os.environ['CALLBACKURL']
 
 AWS_CREDENTIALS = {}
-
 
 def configure_oauth_component():
     """
@@ -45,8 +45,9 @@ def configure_oauth_component():
     refresh_token_url = f"https://{domain}/oauth2/token"
     revoke_token_url = f"https://{domain}/oauth2/revoke"
     client_id = AUTH_CLIENT_ID
+    client_secret = CLIENT_SECRET
     return OAuth2Component(
-        client_id, None, authorize_url, token_url, refresh_token_url, revoke_token_url
+        client_id, client_secret, authorize_url, token_url, refresh_token_url, revoke_token_url
     )
 
 def refresh_iam_oidc_token(refresh_token):
