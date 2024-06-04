@@ -119,7 +119,7 @@ Resources:
             - "appconfig:StartConfigurationSession"
             - "appconfig:GetLatestConfiguration"
           Resource: 
-            - !Sub "arn:${AWS::Partition}:appconfig:${AWS::Region}:${AWS::AccountId}:application/${AppConfig}/environment/${AppConfigEnvironment}/configuration/${AppConfigConfigProfile}"
+            - !Sub "arn:${AWS::Partition}:appconfig:${AWS::Region}:${AWS::AccountId}:application/*"
 
 #   AppConfig:
 #     Type: AWS::AppConfig::Application
