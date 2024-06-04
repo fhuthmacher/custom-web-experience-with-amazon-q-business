@@ -343,7 +343,7 @@ Resources:
             echo "export TOKEN_URL=https://${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
             echo "export REFRESH_TOKEN_URL=https://${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
             echo "export REVOKE_TOKEN_URL=https://${authDomain}/oauth/revoke" >> /etc/profile.d/my_env_vars.sh
-            echo "STREAMLIT_LOG_LEVEL=debug" >> /etc/profile.d/my_env_vars.sh
+            echo "export STREAMLIT_LOG_LEVEL=debug" >> /etc/profile.d/my_env_vars.sh
             source /etc/profile.d/my_env_vars.sh
             nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt & 
 

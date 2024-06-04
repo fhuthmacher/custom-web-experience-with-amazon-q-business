@@ -1,7 +1,7 @@
 # Custom Web Experience with Amazon Q Business
 
 
-Customers often want the ability to integrate custom functionalities into the Amazon Q user interface, such as handling feedback, using corporate colors and templates, custom login, and reducing context switching by integrating the user interface into a single platform. The code repo will show how to integrate a custom UI on Amazon Q using Auth0 or Okta for user authentication and Amazon Q SDK to invoke chatbot application programmatically, through [chat_sync API](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/qbusiness/client/chat_sync.html).
+Customers often want the ability to integrate custom functionalities into the Amazon Q user interface, such as handling feedback, using corporate colors and templates, custom login, and reducing context switching by integrating the user interface into a single platform. The code repo will show how to integrate a custom UI on Amazon Q using **Auth0** for user authentication and Amazon Q SDK to invoke chatbot application programmatically, through [chat_sync API](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/qbusiness/client/chat_sync.html).
 
 This repo is a fork of https://github.com/aws-samples/custom-web-experience-with-amazon-q-business/tree/main , which covers in great detail how to configure this with Amazon Cognito.
 <img src="docs/Architecture.jpg" alt="Architecture Diagram" width="600"/>
