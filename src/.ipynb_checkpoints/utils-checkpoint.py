@@ -10,30 +10,30 @@ logger = logging.getLogger()
 # Read the configuration file
 from dotenv import load_dotenv, find_dotenv
 
-# loading environment variables that are stored in local file dev.env
-local_env_filename = 'auth0.env'
-load_dotenv(find_dotenv(local_env_filename),override=True)
+# loading environment variables that are stored in local .env if no domain variable is set
+if os.environ["DOMAIN"] == "":
+    local_env_filename = 'auth0.env'
+    load_dotenv(find_dotenv(local_env_filename),override=True)
 
-os.environ['DOMAIN'] = os.getenv('DOMAIN')
-os.environ['AUTH_CLIENT_ID'] = os.getenv('AUTH_CLIENT_ID')
-os.environ['API_IDENTIFIER'] = os.getenv('API_IDENTIFIER')
-os.environ['REGION'] = os.getenv('REGION')
-os.environ['IDC_APPLICATION_ID'] = os.getenv('IDC_APPLICATION_ID')
-os.environ['IAM_ROLE'] = os.getenv('IAM_ROLE')
-os.environ['AMAZON_Q_APP_ID'] = os.getenv('AMAZON_Q_APP_ID')
-os.environ['CALLBACKURL'] = os.getenv('CALLBACKURL')
-os.environ['AUTHORIZE_URL'] = os.getenv('AUTHORIZE_URL')
-os.environ['TOKEN_URL'] = os.getenv('TOKEN_URL')
-os.environ['REFRESH_TOKEN_URL'] = os.getenv('REFRESH_TOKEN_URL')
-os.environ['REVOKE_TOKEN_URL'] = os.getenv('REVOKE_TOKEN_URL')
+    os.environ['DOMAIN'] = os.getenv('DOMAIN')
+    os.environ['AUTH_CLIENT_ID'] = os.getenv('AUTH_CLIENT_ID')
+    os.environ['API_IDENTIFIER'] = os.getenv('API_IDENTIFIER')
+    os.environ['REGION'] = os.getenv('REGION')
+    os.environ['IDC_APPLICATION_ARN'] = os.getenv('IDC_APPLICATION_ARN')
+    os.environ['IAM_ROLE'] = os.getenv('IAM_ROLE')
+    os.environ['AMAZON_Q_APP_ID'] = os.getenv('AMAZON_Q_APP_ID')
+    os.environ['CALLBACKURL'] = os.getenv('CALLBACKURL')
+    os.environ['AUTHORIZE_URL'] = os.getenv('AUTHORIZE_URL')
+    os.environ['TOKEN_URL'] = os.getenv('TOKEN_URL')
+    os.environ['REFRESH_TOKEN_URL'] = os.getenv('REFRESH_TOKEN_URL')
+    os.environ['REVOKE_TOKEN_URL'] = os.getenv('REVOKE_TOKEN_URL')
 
 
 DOMAIN = os.environ["DOMAIN"]
 AUTH_CLIENT_ID = os.environ['AUTH_CLIENT_ID']
-CLIENT_SECRET = os.environ.get('AUTH_CLIENT_SECRET')
 API_IDENTIFIER = os.environ["API_IDENTIFIER"]
 REGION = os.environ['REGION']
-IDC_APPLICATION_ID = os.environ['IDC_APPLICATION_ID']
+IDC_APPLICATION_ARN = os.environ['IDC_APPLICATION_ARN']
 IAM_ROLE = os.environ['IAM_ROLE']
 AMAZON_Q_APP_ID = os.environ['AMAZON_Q_APP_ID']
 CALLBACKURL = os.environ['CALLBACKURL']
@@ -50,10 +50,9 @@ def configure_oauth_component():
     Configure the OAuth2 component
     """
 
-    print(f'oauth component details: {DOMAIN} - {AUTHORIZE_URL}  - {TOKEN_URL} - {AUTH_CLIENT_ID} - {CLIENT_SECRET} ')
+    print(f'configure_oauth_component details: {DOMAIN} - {AUTH_CLIENT_ID}  - {AUTHORIZE_URL} - {TOKEN_URL} ')
     return OAuth2Component(
         client_id=AUTH_CLIENT_ID, 
-        # client_secret=CLIENT_SECRET,
         authorize_endpoint=AUTHORIZE_URL, 
         token_endpoint=TOKEN_URL, 
         refresh_token_endpoint=REFRESH_TOKEN_URL, 
@@ -64,9 +63,10 @@ def refresh_iam_oidc_token(refresh_token):
     """
     Refresh the IAM OIDC token using the refresh token retrieved from Cognito
     """
+    print (f'refresh_iam_oidc_token- region: {REGION}')
     client = boto3.client("sso-oidc", region_name=REGION)
     response = client.create_token_with_iam(
-        clientId=IDC_APPLICATION_ID,
+        clientId=IDC_APPLICATION_ARN,
         grantType="refresh_token",
         refreshToken=refresh_token,
     )
@@ -77,13 +77,13 @@ def get_iam_oidc_token(id_token):
     """
     Get the IAM OIDC token using the ID token retrieved from Cognito
     """
-    print (f'region: {REGION}')
+    print (f'get_iam_oidc_token- region: {REGION}')
     client = boto3.client("sso-oidc", region_name=REGION)
-    print (f'sso-oidc client: {client}')
+    print (f'get_iam_oidc_token - sso-oidc client: {client}')
     response = {}
     # try:
     response = client.create_token_with_iam(
-        clientId=IDC_APPLICATION_ID,
+        clientId=IDC_APPLICATION_ARN,
         grantType="urn:ietf:params:oauth:grant-type:jwt-bearer",
         assertion=id_token,
     )

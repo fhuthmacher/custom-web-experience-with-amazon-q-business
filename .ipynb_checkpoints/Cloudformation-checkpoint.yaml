@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CloudFormation for the blog on GenAI with QBusiness'
+Description: 'CloudFormation example to configure QBusiness with a trusted token issuer such as Okta or auth0'
 Parameters:
   
   LatestAmiId:
@@ -15,30 +15,22 @@ Parameters:
     Description: List of IDs of existing public subnets 
     Type: List<AWS::EC2::Subnet::Id>
     Default: "subnet-0557c44c0c5603b52,subnet-0e0b8d9a94a41f3d9"
-    # subnet-0557c44c0c5603b52,subnet-0e0b8d9a94a41f3d9
   CertificateARN:
     Description: Certificate that needs to be added to the Load Balancer
     Type: String
-    Default: 'arn:aws:acm:us-east-1:026459568683:certificate/22e64277-84e5-4bf7-ba76-a17473d97ca0'
-  AuthName:
-    Type: String
-    Description: Unique Auth Name for Cognito Resources
-    AllowedPattern: ^[a-z0-9]+$
-    ConstraintDescription: May only include lowercase, alphanumeric characters
-    Default: 'qcustomchat'
+    Default: 'arn:aws:acm:us-east-1:XXX:certificate/22e64277-84e5-4bf7-ba76-a17473d97ca0'
   authClientId:
     Type: String
-    Description: Auth0 Client App Id
-    Default: 'QVcIxU1OTznQFH5PiAfla5zweOTI4xSg'
+    Description: Auth Client App Id
+    Default: 'fudNmDq9J0BLqoskBuBC9IcF0gS42es9'
   authDomain:
     Type: String
-    Description: Auth0 Domain
+    Description: Auth Domain
     Default: 'dev-u7kq0c6k8tinjvk3.us.auth0.com'
   authAudience:
     Type: String
-    Description: Auth0 Client App Id
-    Default: 'AmazonQCustomPluginAPI'
-
+    Description: Auth Client App Id
+    Default: 'fudNmDq9J0BLqoskBuBC9IcF0gS42es9'
   QApplicationId:
     Type: String
     Description: Q Application Id
@@ -46,8 +38,9 @@ Parameters:
   IdcApplicationArn:
     Type: String
     Description: Identity Center customer application ARN.
-    Default: ""
-    
+    Default: "arn:aws:sso::XXX:application/ssoins-7223600c29125f80/apl-ded63d24e25ebd20"
+
+
 Resources:
   QManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -128,60 +121,61 @@ Resources:
           Resource: 
             - !Sub "arn:${AWS::Partition}:appconfig:${AWS::Region}:${AWS::AccountId}:application/${AppConfig}/environment/${AppConfigEnvironment}/configuration/${AppConfigConfigProfile}"
 
-  AppConfig:
-    Type: AWS::AppConfig::Application
-    Properties:
-      Name: qcustomwebui
+#   AppConfig:
+#     Type: AWS::AppConfig::Application
+#     Properties:
+#       Name: qcustomwebui
   
-  AppConfigEnvironment:
-    Type: AWS::AppConfig::Environment
-    Properties:
-      ApplicationId: !Ref AppConfig
-      Name: qcustomwebui-env
+#   AppConfigEnvironment:
+#     Type: AWS::AppConfig::Environment
+#     Properties:
+#       ApplicationId: !Ref AppConfig
+#       Name: qcustomwebui-env
   
-  AppConfigConfigProfile:
-    Type: AWS::AppConfig::ConfigurationProfile
-    Properties:
-      ApplicationId: !Ref AppConfig
-      Name: qcustomwebui-config
-      LocationUri: "hosted"
+#   AppConfigConfigProfile:
+#     Type: AWS::AppConfig::ConfigurationProfile
+#     Properties:
+#       ApplicationId: !Ref AppConfig
+#       Name: qcustomwebui-config
+#       LocationUri: "hosted"
   
-  AppConfigConfigVersion:
-    Type: AWS::AppConfig::HostedConfigurationVersion
-    Properties:
-      ApplicationId: !Ref AppConfig
-      ConfigurationProfileId: !Ref AppConfigConfigProfile
-      ContentType: "application/json"
-      Content: !Sub |
-        {
-          "AmazonQAppId": "${QApplicationId}",
-          "IamRoleArn": "${QServiceRole.Arn}",
-          "Region": "${AWS::Region}",
-          "IdcApplicationArn": "${IdcApplicationArn}",
-          "OAuthConfig": {
-            "ClientId": "${authClientId}",
-            "ExternalDns": "${LowerCaseFqdn.Output}",
-            "AuthDomain" : "${authDomain}"
-          }
-        }
-  AppConfigDeployment:
-    Type: AWS::AppConfig::Deployment
-    Properties:
-      ApplicationId: !Ref AppConfig
-      ConfigurationProfileId: !Ref AppConfigConfigProfile
-      ConfigurationVersion: !GetAtt AppConfigConfigVersion.VersionNumber
-      EnvironmentId: !Ref AppConfigEnvironment
-      DeploymentStrategyId: !Ref AppConfigDeploymentStrategy
+#   AppConfigConfigVersion:
+#     Type: AWS::AppConfig::HostedConfigurationVersion
+#     Properties:
+#       ApplicationId: !Ref AppConfig
+#       ConfigurationProfileId: !Ref AppConfigConfigProfile
+#       ContentType: "application/json"
+#       Content: !Sub |
+#         {
+#           "AmazonQAppId": "${QApplicationId}",
+#           "IamRoleArn": "${QServiceRole.Arn}",
+#           "Region": "${AWS::Region}",
+#           "IdcApplicationArn": "${IdcApplicationArn}",
+#           "OAuthConfig": {
+#             "ClientId": "${authClientId}",
+#             "ExternalDns": "${LowerCaseFqdn.Output}",
+#             "AuthDomain" : "${authDomain}"
+#           }
+#         }
+#   AppConfigDeployment:
+#     Type: AWS::AppConfig::Deployment
+#     Properties:
+#       ApplicationId: !Ref AppConfig
+#       ConfigurationProfileId: !Ref AppConfigConfigProfile
+#       ConfigurationVersion: !GetAtt AppConfigConfigVersion.VersionNumber
+#       EnvironmentId: !Ref AppConfigEnvironment
+#       DeploymentStrategyId: !Ref AppConfigDeploymentStrategy
   
-  AppConfigDeploymentStrategy:
-    Type: AWS::AppConfig::DeploymentStrategy
-    Properties:
-      DeploymentDurationInMinutes: 0
-      FinalBakeTimeInMinutes: 0
-      GrowthFactor: 100
-      Name: "Quick deployment"
-      ReplicateTo: "NONE"
-      GrowthType: "LINEAR"
+#   AppConfigDeploymentStrategy:
+#     Type: AWS::AppConfig::DeploymentStrategy
+#     Properties:
+#       DeploymentDurationInMinutes: 0
+#       FinalBakeTimeInMinutes: 0
+#       GrowthFactor: 100
+#       Name: "Quick deployment"
+#       ReplicateTo: "NONE"
+#       GrowthType: "LINEAR"
+
   # EC2 and ALB Security Groups
   ELBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -335,8 +329,24 @@ Resources:
             pip3.11 install virtualenv
             python3.11 -m virtualenv venv
             venv/bin/pip install -r requirements.txt
-            export STREAMLIT_LOG_LEVEL=debug
-            APPCONFIG_APP_NAME=${AppConfig} APPCONFIG_ENV_NAME=${AppConfigEnvironment} APPCONFIG_CONF_NAME=${AppConfigConfigProfile} nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt & 
+            
+            echo "Setting environment variables"
+            echo "export DOMAIN=${authDomain}" >> /etc/profile.d/my_env_vars.sh
+            echo "export AUTH_CLIENT_ID=${authClientId}" >> /etc/profile.d/my_env_vars.sh
+            echo "export API_IDENTIFIER=${authAudience}" >> /etc/profile.d/my_env_vars.sh
+            echo "export IDC_APPLICATION_ARN=${IdcApplicationArn}" >> /etc/profile.d/my_env_vars.sh
+            echo "export AMAZON_Q_APP_ID=${QApplicationId}" >> /etc/profile.d/my_env_vars.sh
+            echo "export IAM_ROLE=${QServiceRole.Arn}" >> /etc/profile.d/my_env_vars.sh
+            echo "export REGION=${AWS::Region}" >> /etc/profile.d/my_env_vars.sh
+            echo "export CALLBACKURL=${LowerCaseFqdn.Output}" >> /etc/profile.d/my_env_vars.sh
+            echo "export AUTHORIZE_URL=${authDomain}/authorize" >> /etc/profile.d/my_env_vars.sh
+            echo "export TOKEN_URL=${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
+            echo "export REFRESH_TOKEN_URL=${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
+            echo "export REVOKE_TOKEN_URL=${authDomain}/oauth/revoke" >> /etc/profile.d/my_env_vars.sh
+            echo "STREAMLIT_LOG_LEVEL=debug" >> /etc/profile.d/my_env_vars.sh
+            source /etc/profile.d/my_env_vars.sh
+            nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt &
+            # APPCONFIG_APP_NAME=${AppConfig} APPCONFIG_ENV_NAME=${AppConfigEnvironment} APPCONFIG_CONF_NAME=${AppConfigConfigProfile} nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt & 
 
     # Target Group, Listener and Application  Load Balancer
   EC2TargetGroup:

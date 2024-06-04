@@ -1,0 +1,6 @@
+pyjwt
+streamlit==1.34
+streamlit-oauth
+streamlit-feedback
+boto3
+python-dotenv
