@@ -135,7 +135,7 @@ Step 2: Launch the following AWS CloudFormation template to deploy ELB and EC2 i
 
 
 
-🔗 Once the stack is complete , copy the following Key from the Output tab .
+🔗 Once the stack is complete , copy the following values from the Output tab .
 ------------------------------------------------
 
 **URL** : The Load balancer URL to access the streamlit app
