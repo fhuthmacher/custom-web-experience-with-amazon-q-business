@@ -31,7 +31,7 @@ if "token" not in st.session_state:
     # If not, show authorize button
     redirect_uri = os.environ['CALLBACKURL']
     try:
-        result = oauth2.authorize_button("Login with oauth2",scope="openid", pkce="S256", redirect_uri=redirect_uri)
+        result = oauth2.authorize_button("Login with oauth2",scope="openid email profile offline_access", pkce="S256", redirect_uri=redirect_uri)
         #result = oauth2.authorize_button("Login with auth0", redirect_uri, "openid")
         print(f'result: {result}')
     

@@ -11,7 +11,7 @@ logger = logging.getLogger()
 from dotenv import load_dotenv, find_dotenv
 
 # loading environment variables that are stored in local file dev.env
-local_env_filename = 'okta.env'
+local_env_filename = 'auth0.env'
 load_dotenv(find_dotenv(local_env_filename),override=True)
 
 os.environ['DOMAIN'] = os.getenv('DOMAIN')
@@ -53,7 +53,6 @@ def configure_oauth_component():
     print(f'oauth component details: {DOMAIN} - {AUTHORIZE_URL}  - {TOKEN_URL} - {AUTH_CLIENT_ID} - {CLIENT_SECRET} ')
     return OAuth2Component(
         client_id=AUTH_CLIENT_ID, 
-        client_secret=CLIENT_SECRET,
         authorize_endpoint=AUTHORIZE_URL, 
         token_endpoint=TOKEN_URL, 
         refresh_token_endpoint=REFRESH_TOKEN_URL, 
@@ -85,8 +84,6 @@ def get_iam_oidc_token(id_token):
     response = client.create_token_with_iam(
         clientId=IDC_APPLICATION_ID,
         grantType="urn:ietf:params:oauth:grant-type:jwt-bearer",
-
-# "grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials","urn:ietf:params:oauth:grant-type:device_code","urn:openid:params:grant-type:ciba"]
         assertion=id_token,
     )
     print (f'create_token_with_iam response: {response}')
@@ -125,7 +122,7 @@ def get_qclient(idc_id_token: str):
     Create the Q client using the identity-aware AWS Session.
     """
     if not AWS_CREDENTIALS or AWS_CREDENTIALS["Expiration"] < datetime.datetime.now(
-        datetime.UTC
+        datetime.timezone.utc # requires Python 3.11 datetime.UTC
     ):
         assume_role_with_token(idc_id_token)
     session = boto3.Session(
