@@ -121,61 +121,6 @@ Resources:
           Resource: 
             - !Sub "arn:${AWS::Partition}:appconfig:${AWS::Region}:${AWS::AccountId}:application/*"
 
-#   AppConfig:
-#     Type: AWS::AppConfig::Application
-#     Properties:
-#       Name: qcustomwebui
-  
-#   AppConfigEnvironment:
-#     Type: AWS::AppConfig::Environment
-#     Properties:
-#       ApplicationId: !Ref AppConfig
-#       Name: qcustomwebui-env
-  
-#   AppConfigConfigProfile:
-#     Type: AWS::AppConfig::ConfigurationProfile
-#     Properties:
-#       ApplicationId: !Ref AppConfig
-#       Name: qcustomwebui-config
-#       LocationUri: "hosted"
-  
-#   AppConfigConfigVersion:
-#     Type: AWS::AppConfig::HostedConfigurationVersion
-#     Properties:
-#       ApplicationId: !Ref AppConfig
-#       ConfigurationProfileId: !Ref AppConfigConfigProfile
-#       ContentType: "application/json"
-#       Content: !Sub |
-#         {
-#           "AmazonQAppId": "${QApplicationId}",
-#           "IamRoleArn": "${QServiceRole.Arn}",
-#           "Region": "${AWS::Region}",
-#           "IdcApplicationArn": "${IdcApplicationArn}",
-#           "OAuthConfig": {
-#             "ClientId": "${authClientId}",
-#             "ExternalDns": "${LowerCaseFqdn.Output}",
-#             "AuthDomain" : "${authDomain}"
-#           }
-#         }
-#   AppConfigDeployment:
-#     Type: AWS::AppConfig::Deployment
-#     Properties:
-#       ApplicationId: !Ref AppConfig
-#       ConfigurationProfileId: !Ref AppConfigConfigProfile
-#       ConfigurationVersion: !GetAtt AppConfigConfigVersion.VersionNumber
-#       EnvironmentId: !Ref AppConfigEnvironment
-#       DeploymentStrategyId: !Ref AppConfigDeploymentStrategy
-  
-#   AppConfigDeploymentStrategy:
-#     Type: AWS::AppConfig::DeploymentStrategy
-#     Properties:
-#       DeploymentDurationInMinutes: 0
-#       FinalBakeTimeInMinutes: 0
-#       GrowthFactor: 100
-#       Name: "Quick deployment"
-#       ReplicateTo: "NONE"
-#       GrowthType: "LINEAR"
-
   # EC2 and ALB Security Groups
   ELBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -366,45 +311,6 @@ Resources:
       UnhealthyThresholdCount: 3
       VpcId: !Ref VpcId
 
-  # UserPool:
-  #   Type: AWS::Cognito::UserPool
-  #   Metadata:
-  #     guard:
-  #       SuppressedRules:
-  #         - COGNITO_USER_POOL_MFA_CONFIGURATION_RULE # Not required for the demo
-  #   Properties:
-  #     UserPoolName: !Sub ${AuthName}-user-pool
-  #     AutoVerifiedAttributes:
-  #     - email
-  #     MfaConfiguration: "OFF"
-  #     Schema:
-  #     - Name: email
-  #       AttributeDataType: String
-  #       Mutable: false
-  #       Required: true
-
-  # UserPoolClient:
-  #   Type: AWS::Cognito::UserPoolClient
-  #   Properties:
-  #     ClientName: !Sub ${AuthName}-client
-  #     GenerateSecret: false
-  #     UserPoolId: !Ref UserPool
-  #     AllowedOAuthFlowsUserPoolClient: True
-  #     AllowedOAuthFlows:
-  #     - code
-  #     AllowedOAuthScopes:
-  #     - openid
-  #     SupportedIdentityProviders:
-  #     - COGNITO
-  #     CallbackURLs:
-  #     - !Sub "https://${LowerCaseFqdn.Output}/component/streamlit_oauth.authorize_button/index.html"
-
-  # UserPoolDomain:
-  #   Type: AWS::Cognito::UserPoolDomain
-  #   Properties:
-  #     UserPoolId: !Ref UserPool
-  #     Domain: !Sub ${AuthName}-dns-testname
-
   ALBListener2:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Metadata:
@@ -521,12 +427,6 @@ Outputs:
     Description: URL to access the Streamlit APP
     Value:
       !Sub https://${ApplicationLoadBalancer.DNSName}
-  # TrustedIssuerUrl:
-  #   Description: Endpoint of the trusted issuer to setup Identity Center
-  #   Value: !GetAtt UserPool.ProviderURL
-  # Audience:
-  #   Description: Audience to setup customer application in Identity Center
-  #   Value: !Ref UserPoolClient
   RoleArn:
     Description: "ARN of the IAM role required to setup token exchange in Identity Center"
     Value: !GetAtt EC2ServiceRole.Arn
