@@ -1,0 +1,13 @@
+export DOMAIN=https://dev-u7kq0c6k8tinjvk3.us.auth0.com
+export AUTH_CLIENT_ID=fudNmDq9J0BLqoskBuBC9IcF0gS42es9
+export API_IDENTIFIER=fudNmDq9J0BLqoskBuBC9IcF0gS42es9
+export IDC_APPLICATION_ARN=arn:aws:sso::026459568683:application/ssoins-7223600c29125f80/apl-ded63d24e25ebd20
+export AMAZON_Q_APP_ID=9bc99980-fc75-46eb-b6ed-8acb6826bbdc
+export IAM_ROLE=arn:aws:iam::026459568683:role/QBusinessCustomChatUI-QServiceRole-FQBt1SG2lWRn
+export REGION=us-east-1
+export CALLBACKURL=https://qbusin-appli-toeqlgo9msaj-1801118968.us-east-1.elb.amazonaws.com/component/streamlit_oauth.authorize_button/index.html
+export AUTHORIZE_URL=https://dev-u7kq0c6k8tinjvk3.us.auth0.com/authorize
+export TOKEN_URL=https://dev-u7kq0c6k8tinjvk3.us.auth0.com/oauth/token
+export REFRESH_TOKEN_URL=https://dev-u7kq0c6k8tinjvk3.us.auth0.com/oauth/token
+export REVOKE_TOKEN_URL=https://dev-u7kq0c6k8tinjvk3.us.auth0.com/oauth/revoke
+STREAMLIT_LOG_LEVEL=debug

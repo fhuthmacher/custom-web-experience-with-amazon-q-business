@@ -339,10 +339,10 @@ Resources:
             echo "export IAM_ROLE=${QServiceRole.Arn}" >> /etc/profile.d/my_env_vars.sh
             echo "export REGION=${AWS::Region}" >> /etc/profile.d/my_env_vars.sh
             echo "export CALLBACKURL=https://${LowerCaseFqdn.Output}/component/streamlit_oauth.authorize_button/index.html" >> /etc/profile.d/my_env_vars.sh
-            echo "export AUTHORIZE_URL=${authDomain}/authorize" >> /etc/profile.d/my_env_vars.sh
-            echo "export TOKEN_URL=${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
-            echo "export REFRESH_TOKEN_URL=${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
-            echo "export REVOKE_TOKEN_URL=${authDomain}/oauth/revoke" >> /etc/profile.d/my_env_vars.sh
+            echo "export AUTHORIZE_URL=https://${authDomain}/authorize" >> /etc/profile.d/my_env_vars.sh
+            echo "export TOKEN_URL=https://${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
+            echo "export REFRESH_TOKEN_URL=https://${authDomain}/oauth/token" >> /etc/profile.d/my_env_vars.sh
+            echo "export REVOKE_TOKEN_URL=https://${authDomain}/oauth/revoke" >> /etc/profile.d/my_env_vars.sh
             echo "STREAMLIT_LOG_LEVEL=debug" >> /etc/profile.d/my_env_vars.sh
             source /etc/profile.d/my_env_vars.sh
             nohup venv/bin/streamlit run src/app.py --server.port=8080 > logs.txt & 
